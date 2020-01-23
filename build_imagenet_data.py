@@ -80,6 +80,7 @@ import os
 import random
 import sys
 import threading
+from glob import glob
 
 import numpy as np
 from six.moves import xrange  # pylint: disable=redefined-builtin
@@ -456,7 +457,8 @@ def _find_image_files(data_dir, labels_file):
   label_index = 1
 
   # Construct the list of JPEG files and labels.
-  for synset in challenge_synsets:
+  available_synsets = [s.split("/")[-1]  for s in glob(data_dir+ "/*")]
+  for synset in available_synsets:
     jpeg_file_path = '%s/%s/*.JPEG' % (data_dir, synset)
     matching_files = tf.gfile.Glob(jpeg_file_path)
 
@@ -472,10 +474,10 @@ def _find_image_files(data_dir, labels_file):
   # Shuffle the ordering of all image files in order to guarantee
   # random ordering of the images with respect to label in the
   # saved TFRecord files. Make the randomization repeatable.
-  shuffled_index = range(len(filenames))
+  shuffled_index = list(range(len(filenames)))
   random.seed(12345)
 
-  random.shuffle(list(range(len(shuffled_index))))
+  random.shuffle(shuffled_index)
 
   filenames = [filenames[i] for i in shuffled_index]
   synsets = [synsets[i] for i in shuffled_index]
